@@ -1,0 +1,15 @@
+[project]
+name = "webview-app"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiohttp>=3.14.1",
+    "fastapi[standard]>=0.136.1",
+    "loguru>=0.7.3",
+    "mypy-protobuf>=5.1.0",
+    "protobuf>=7.35.1",
+    "pywebview>=6.2.1",
+    "websockets>=16.0",
+]
