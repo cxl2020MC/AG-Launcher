@@ -26,7 +26,9 @@ class SophonChunkManifest(_message.Message):
 
     CHUNCKS_FIELD_NUMBER: _builtins.int
     @_builtins.property
-    def chuncks(self) -> _containers.RepeatedCompositeFieldContainer[Global___SophonChunkFile]: ...
+    def chuncks(
+        self,
+    ) -> _containers.RepeatedCompositeFieldContainer[Global___SophonChunkFile]: ...
     def __init__(
         self,
         *,
@@ -56,7 +58,9 @@ class SophonChunkFile(_message.Message):
     size: _builtins.int
     md5: _builtins.str
     @_builtins.property
-    def chunks(self) -> _containers.RepeatedCompositeFieldContainer[Global___SophonChunk]: ...
+    def chunks(
+        self,
+    ) -> _containers.RepeatedCompositeFieldContainer[Global___SophonChunk]: ...
     def __init__(
         self,
         *,
@@ -68,7 +72,18 @@ class SophonChunkFile(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["chunks", b"chunks", "file", b"file", "is_folder", b"is_folder", "md5", b"md5", "size", b"size"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "chunks",
+        b"chunks",
+        "file",
+        b"file",
+        "is_folder",
+        b"is_folder",
+        "md5",
+        b"md5",
+        "size",
+        b"size",
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -107,7 +122,22 @@ class SophonChunk(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["compressed_md5", b"compressed_md5", "compressed_size", b"compressed_size", "id", b"id", "offset", b"offset", "uncompressed_md5", b"uncompressed_md5", "uncompressed_size", b"uncompressed_size", "unknown", b"unknown"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "compressed_md5",
+        b"compressed_md5",
+        "compressed_size",
+        b"compressed_size",
+        "id",
+        b"id",
+        "offset",
+        b"offset",
+        "uncompressed_md5",
+        b"uncompressed_md5",
+        "uncompressed_size",
+        b"uncompressed_size",
+        "unknown",
+        b"unknown",
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -125,11 +155,15 @@ class SophonPatchManifest(_message.Message):
     compress_mode: _builtins.int
     """压缩模式"""
     @_builtins.property
-    def patches(self) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchFile]:
+    def patches(
+        self,
+    ) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchFile]:
         """新版本所有文件"""
 
     @_builtins.property
-    def delete_tags(self) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchDeleteTag]:
+    def delete_tags(
+        self,
+    ) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchDeleteTag]:
         """需要删除的文件"""
 
     def __init__(
@@ -141,7 +175,14 @@ class SophonPatchManifest(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["compress_mode", b"compress_mode", "delete_tags", b"delete_tags", "patches", b"patches"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "compress_mode",
+        b"compress_mode",
+        "delete_tags",
+        b"delete_tags",
+        "patches",
+        b"patches",
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -161,7 +202,9 @@ class SophonPatchFile(_message.Message):
     size: _builtins.int
     md5: _builtins.str
     @_builtins.property
-    def patches(self) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchInfo]:
+    def patches(
+        self,
+    ) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchInfo]:
         """不同版本的补丁文件，如果为空则表示不需要更新"""
 
     def __init__(
@@ -174,7 +217,9 @@ class SophonPatchFile(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["file", b"file", "md5", b"md5", "patches", b"patches", "size", b"size"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "file", b"file", "md5", b"md5", "patches", b"patches", "size", b"size"
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -250,7 +295,28 @@ class SophonPatch(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["build_id", b"build_id", "id", b"id", "original_file_md5", b"original_file_md5", "original_file_name", b"original_file_name", "original_file_size", b"original_file_size", "patch_file_md5", b"patch_file_md5", "patch_file_size", b"patch_file_size", "patch_length", b"patch_length", "patch_offset", b"patch_offset", "tag", b"tag"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "build_id",
+        b"build_id",
+        "id",
+        b"id",
+        "original_file_md5",
+        b"original_file_md5",
+        "original_file_name",
+        b"original_file_name",
+        "original_file_size",
+        b"original_file_size",
+        "patch_file_md5",
+        b"patch_file_md5",
+        "patch_file_size",
+        b"patch_file_size",
+        "patch_length",
+        b"patch_length",
+        "patch_offset",
+        b"patch_offset",
+        "tag",
+        b"tag",
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -272,9 +338,13 @@ class SophonPatchDeleteTag(_message.Message):
         tag: _builtins.str = ...,
         delete_collection: Global___SophonPatchDeleteFileCollection | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["delete_collection", b"delete_collection"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal[
+        "delete_collection", b"delete_collection"
+    ]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["delete_collection", b"delete_collection", "tag", b"tag"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "delete_collection", b"delete_collection", "tag", b"tag"
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 
@@ -286,7 +356,11 @@ class SophonPatchDeleteFileCollection(_message.Message):
 
     DELETE_FILES_FIELD_NUMBER: _builtins.int
     @_builtins.property
-    def delete_files(self) -> _containers.RepeatedCompositeFieldContainer[Global___SophonPatchDeleteFile]: ...
+    def delete_files(
+        self,
+    ) -> _containers.RepeatedCompositeFieldContainer[
+        Global___SophonPatchDeleteFile
+    ]: ...
     def __init__(
         self,
         *,
@@ -321,7 +395,9 @@ class SophonPatchDeleteFile(_message.Message):
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["file", b"file", "md5", b"md5", "size", b"size"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal[
+        "file", b"file", "md5", b"md5", "size", b"size"
+    ]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     def WhichOneof(self, oneof_group: _Never) -> None: ...
 

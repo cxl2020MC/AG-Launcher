@@ -29,13 +29,13 @@ HYP_API_DATA = {
             Launcher.BILIBILIYS: "umfgRO5gh5",
             Launcher.BILIBILISR: "6P5gHMNyK3",
             Launcher.BILIBILIZZZ: "xV0f4r1GT0",
-        }
+        },
     },
     LaucherArea.GLOBAL: {
         "api_base": "hyp-api.mihoyo.com",
         "launcher_ids": {
             Launcher.GLOBAL: "VYTpXlbWo8",
-        }
+        },
     },
 }
 
@@ -101,7 +101,9 @@ class HYPLauncher:
         return URL(api_url_str)
 
     def get_hyp_game_chunk_api_url(self) -> URL:
-        api_url_str = f"https://{self.hyp_game_chunk_api_base}/downloader/sophon_chunk/api"
+        api_url_str = (
+            f"https://{self.hyp_game_chunk_api_base}/downloader/sophon_chunk/api"
+        )
         return URL(api_url_str)
 
     async def fetch_hyp_api(self, path: str, params: dict | None = None) -> dict:
@@ -140,17 +142,13 @@ class HYPLauncher:
         if game_id is None:
             params = None
         else:
-            params = {
-                "game_id": game_id
-            }
+            params = {"game_id": game_id}
         data = await self.fetch_hyp_api("getAllGameBasicInfo", params)
         return data
 
     # https://hyp-api.mihoyo.com/hyp/hyp-connect/api/getGameContent?launcher_id=jGHBHlcOq1&game_id=1Z8W5NHUQb&language=zh-cn
     async def get_game_content(self, game_id: str):
-        params = {
-            "game_id": game_id
-        }
+        params = {"game_id": game_id}
         data = await self.fetch_hyp_api("getGameContent", params)
         return data
 
@@ -158,9 +156,7 @@ class HYPLauncher:
         if game_id is None:
             params = None
         else:
-            params = {
-                "game_id": game_id
-            }
+            params = {"game_id": game_id}
         data = await self.fetch_hyp_api("getGamePackages", params)
         return data
 
@@ -168,9 +164,7 @@ class HYPLauncher:
         if game_ids is None:
             params = None
         else:
-            params = {
-                "game_ids[]": game_ids
-            }
+            params = {"game_ids[]": game_ids}
         data = await self.fetch_hyp_api("getGameBranches", params)
         return data
 
@@ -178,19 +172,15 @@ class HYPLauncher:
         if game_ids is None:
             params = {}
         else:
-            params: dict = {
-                "game_ids[]": game_ids
-            }
-        if self.launcher in [Launcher.BILIBILISR, Launcher.BILIBILIYS, Launcher.BILIBILIZZZ]:
-            params.update({
-                "channel": 14,
-                "sub_channel": 0
-            })
+            params: dict = {"game_ids[]": game_ids}
+        if self.launcher in [
+            Launcher.BILIBILISR,
+            Launcher.BILIBILIYS,
+            Launcher.BILIBILIZZZ,
+        ]:
+            params.update({"channel": 14, "sub_channel": 0})
         else:
-            params.update({
-                "channel": 1,
-                "sub_channel": 1
-            })
+            params.update({"channel": 1, "sub_channel": 1})
         data = await self.fetch_hyp_api("getGameDeprecatedFileConfigs", params)
         return data
 
@@ -198,9 +188,7 @@ class HYPLauncher:
         if game_ids is None:
             params = None
         else:
-            params = {
-                "game_ids[]": game_ids
-            }
+            params = {"game_ids[]": game_ids}
         data = await self.fetch_hyp_api("getGameConfigs", params)
         return data
 
@@ -208,9 +196,7 @@ class HYPLauncher:
         if game_ids is None:
             params = None
         else:
-            params = {
-                "game_ids[]": game_ids
-            }
+            params = {"game_ids[]": game_ids}
         data = await self.fetch_hyp_api("getGameScanInfo", params)
 
     async def fetch_hyp_chunk_api(self, path: str, params: dict | None = None):
@@ -237,23 +223,19 @@ class HYPLauncher:
                     raise Exception(f"API 请求错误: {res}")
                 return res.get("data")
 
-    async def get_game_chunk_build(self, branch: str, package_id: str, password: str, tag: str | None = None):
-        params = {
-            "branch": branch,
-            "package_id": package_id,
-            "password": password
-        }
+    async def get_game_chunk_build(
+        self, branch: str, package_id: str, password: str, tag: str | None = None
+    ):
+        params = {"branch": branch, "package_id": package_id, "password": password}
         if tag:
             params["tag"] = tag
         data = await self.fetch_hyp_chunk_api("getBuild", params)
         return data
 
-    async def get_game_chunk_patch_bulid(self, branch: str, package_id: str, password: str, tag: str | None = None):
-        params = {
-            "branch": branch,
-            "package_id": package_id,
-            "password": password
-        }
+    async def get_game_chunk_patch_bulid(
+        self, branch: str, package_id: str, password: str, tag: str | None = None
+    ):
+        params = {"branch": branch, "package_id": package_id, "password": password}
         # 神秘，前面都是get这里突然变成post
         data = await self.post_hyp_chunk_api("getPatchBuild", params)
         return data
@@ -265,7 +247,8 @@ if __name__ == "__main__":
     data = asyncio.run(launcher.get_games_basic_info("1Z8W5NHUQb"))
     data = asyncio.run(launcher.get_game_packages())
     data = asyncio.run(launcher.get_game_branches(["1Z8W5NHUQb"]))
-    
-    data = asyncio.run(launcher.get_game_chunk_build(
-        "main", "8xfMve0uwQ", "CW8GbLNU8f"))
+
+    data = asyncio.run(
+        launcher.get_game_chunk_build("main", "8xfMve0uwQ", "CW8GbLNU8f")
+    )
     print(data)
