@@ -3,12 +3,22 @@ import webview
 
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 from routers import get_game_info
 from core.type import request
 
-app = FastAPI()
+app = FastAPI(title="AG-Launcher", description="AG-Launcher API", version="1.0.0")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(get_game_info.router, prefix="/api", tags=["获取游戏信息"])
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

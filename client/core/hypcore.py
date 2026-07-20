@@ -130,6 +130,15 @@ class HYPLauncher:
         if not self.games_data:
             self.games_data = await self._get_games()
         return self.games_data
+    
+    async def get_game(self, game_id: str | None = None, game_biz: str | None = None):
+        data = await self.get_games()
+        for game_data in data["games"]:
+            if game_id is not None and game_data["id"] == game_id:
+                return game_data
+            if game_biz is not None and game_data["biz"] == game_biz:
+                return game_data
+        raise Exception("游戏未找到")
 
     async def use_game_biz_get_game_id(self, game_biz: str) -> str:
         data = await self.get_games()

@@ -1,9 +1,22 @@
 <script setup lang="ts" vapor>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import SlideShow from '@/components/SlideShow.vue';
 import { useGameStore } from '@/stores/game'
+import { getApi } from '@/utils/request'
+
+
+const game_data = ref<Record<string, any> | null>(null)
+
+getApi('game_info', { area: 'cn', launcher: '国服', game_biz: 'hk4e_cn' }).then((data) => {
+    game_data.value = data
+})
+
+const game_icon = computed(() => game_data.value?.display?.icon?.url)
+console.log(game_data.value)
 
 const bg_datas = useGameStore()
+
+
 const bg_num = ref(0)
 const bg_data = ref(bg_datas[bg_num.value])
 const bg_video_play = ref(true)
@@ -126,14 +139,15 @@ const imgs = [
         <!-- <video class="background" src="https://launcher-webstatic.mihoyo.com/launcher-public/2026/06/10/baf3e7fb8f3d0465eaf9f680d168ab3a_4670576832169094293.webm" autoplay loop></video> -->
         <!-- <img src="https://launcher-webstatic.mihoyo.com/launcher-public/2026/05/26/30b6f666378d012b8763e224f4c96656_440171036365066232.webp" alt="" class="background"> -->
         <div class="left-menu">
-            <img class="game-icon"
-                src="https://launcher-webstatic.mihoyo.com/launcher-public/2025/10/14/9ebf1bc5af2d83ca5fca21adb49cf341_1713549758249501746.png"
-                alt="">
+            <img class="game-icon" :src="game_icon" alt="">
             <div class="game-menus">
 
             </div>
         </div>
         <div class="content">
+            <div class="backgroud-swicher">
+                <div class="background-swicher-item"></div>
+            </div>
             <div class="left-aside">
                 <div class="aside-bg-icon-div">
                     <img class="aside-bg-icon" v-if="bg_data" :src="bg_data.icon.url" />
