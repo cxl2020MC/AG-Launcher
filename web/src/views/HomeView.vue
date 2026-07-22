@@ -239,6 +239,7 @@ const imgs = [
 
 .aside-bg-icon-div {
     width: 35%;
+    margin-bottom: .5em;
 }
 
 .aside-bg-icon,
@@ -261,7 +262,7 @@ const imgs = [
 }
 
 .aside .activity {
-    padding: 0.5em;
+    padding: .5em;
 }
 
 .aside .activity .activity-tabs {
@@ -283,7 +284,7 @@ const imgs = [
 
 .aside .activity .activity-posts {
     max-height: 4em;
-    margin-top: 0.5em;
+    margin-top: .5em;
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-color) transparent;
