@@ -50,7 +50,7 @@ class HttpDownloadManager:
         self,
         workers_num: int = 8,
         steam: bool = True,
-        steam_chunk_size=1024 * 1024 * 10,
+        steam_chunk_size=1024 * 1024 * 1,
     ):
         self.workers_num = workers_num
         self._file_download_tasks: asyncio.Queue[DownloadFile] = (
@@ -58,7 +58,7 @@ class HttpDownloadManager:
         )  # 存储文件下载任务的队列
         self._file_status_dict: dict[URL, DownloadTask] = {}
         self.steam: bool = steam
-        self.steam_chunk_size = steam_chunk_size  # 默认10MB
+        self.steam_chunk_size = steam_chunk_size  # 默认1MB
 
     async def run(self):
         async with aiohttp.ClientSession() as session:
