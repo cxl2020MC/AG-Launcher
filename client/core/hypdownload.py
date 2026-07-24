@@ -4,6 +4,7 @@ import anyio
 import time
 import yarl
 from dataclasses import dataclass
+from enum import StrEnum
 
 type URL = yarl.URL | str
 
@@ -12,6 +13,21 @@ type URL = yarl.URL | str
 class DownloadFile:
     url: URL
     path: anyio.Path
+
+
+class DownloadStatus(StrEnum):
+    DOWNLOADING = "Downloading"
+    OK = "Ok"
+    WAITING = "Waiting"
+
+
+@dataclass
+class DownloadTask(DownloadFile):
+    status: DownloadStatus = DownloadStatus.WAITING
+    total_size: int = 0
+    download_size: int = 0
+    _old_download_size: int = 0
+    speed: float = 0
 
 
 class DownloadManager:
@@ -25,6 +41,9 @@ class DownloadManager:
             # await self.http_file_downloads.get()
             pass
 
+    async def download_game(self):
+        pass
+
 
 class HttpDownloadManager:
     def __init__(
@@ -34,9 +53,10 @@ class HttpDownloadManager:
         steam_chunk_size=1024 * 1024 * 10,
     ):
         self.workers_num = workers_num
-        self.file_downloads: asyncio.Queue[DownloadFile] = (
+        self._file_download_tasks: asyncio.Queue[DownloadFile] = (
             asyncio.Queue()
         )  # 存储文件下载任务的队列
+        self._file_status_dict: dict[URL, DownloadTask] = {}
         self.steam: bool = steam
         self.steam_chunk_size = steam_chunk_size  # 默认10MB
 
@@ -48,7 +68,8 @@ class HttpDownloadManager:
                     self.worker(session), name=f"download-worker-{i}"
                 )
                 tasks.append(task)
-            await self.file_downloads.join()
+            tasks.append(asyncio.create_task(self._show_task_progress()))
+            await self._file_download_tasks.join()
             for task in tasks:
                 task.cancel()
             # 等待直到所有工作任务都被取消。
@@ -56,42 +77,52 @@ class HttpDownloadManager:
 
     async def worker(self, session: aiohttp.ClientSession):
         while True:
-            task = await self.file_downloads.get()
+            task = await self._file_download_tasks.get()
             try:
-                await self.download_one(session, task.url, task.path)
+                await self.download_one(session, task)
             except Exception:
                 pass
             finally:
-                self.file_downloads.task_done()
+                self._file_download_tasks.task_done()
 
-    async def download_one(
-        self, session: aiohttp.ClientSession, url: URL, path: anyio.Path
-    ):
+    async def download_one(self, session: aiohttp.ClientSession, task: DownloadFile):
+        url = task.url
+        path = task.path
         print(f"正在下载: {url} | {path}")
         await path.parent.mkdir(parents=True, exist_ok=True)
         async with session.get(url) as resp:
             resp.raise_for_status()
             total_size = resp.content_length or 0
             print(f"下载大小 {total_size / 1024 / 1024:.2f} MB")
+            task_status = self._get_download_task(url)
+            task_status.total_size = total_size
+            task_status.status = DownloadStatus.DOWNLOADING
             if self.steam:
                 download_size = 0
-                start_time = time.monotonic()
                 async with await anyio.open_file(path, mode="wb") as f:
                     async for chunk in resp.content.iter_chunked(self.steam_chunk_size):
                         await f.write(chunk)
                         download_size += len(chunk)
-                        end_time = time.monotonic()
-                        if total_size:
-                            print(
-                                f"{path} 已下载: {download_size / 1024 / 1024:.2f}MB/{total_size / 1024 / 1024:.2f}MB ({(download_size / total_size) * 100:.2f}%) {(len(chunk) / (end_time - start_time)) / 1024 / 1024:.2f}MB/s",
-                                end="\r",
-                            )
-                        start_time = time.monotonic()
+                        task_status.download_size = download_size
 
-            await path.write_bytes(await resp.read())
+            else:
+                await path.write_bytes(await resp.read())
+
+    def _get_download_task(self, url: URL):
+        return self._file_status_dict[url]
 
     async def add(self, task: DownloadFile):
-        return await self.file_downloads.put(task)
+        if task.url not in self._file_status_dict:
+            self._file_status_dict.update({task.url: DownloadTask(task.url, task.path)})
+            await self._file_download_tasks.put(task)
+
+    async def _show_task_progress(self):
+        while True:
+            for task in self._file_status_dict.values():
+                task.speed = task.download_size - task._old_download_size
+                task._old_download_size = task.download_size
+            print(self._file_status_dict)
+            await asyncio.sleep(1)
 
 
 if __name__ == "__main__":

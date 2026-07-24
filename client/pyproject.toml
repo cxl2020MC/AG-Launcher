@@ -10,6 +10,7 @@ dependencies = [
     "fastapi[standard]>=0.136.1",
     "loguru>=0.7.3",
     "mypy-protobuf>=5.1.0",
+    "niquests[socks,speedups]>=3.20.1",
     "protobuf>=7.35.1",
     "pywebview>=6.2.1",
     "websockets>=16.0",
