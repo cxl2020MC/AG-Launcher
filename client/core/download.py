@@ -89,6 +89,9 @@ class HttpDownloadManager:
                 self._worker_list.append(task)
             await self.wait_download_ok()
 
+    async def run_background(self):
+        asyncio.create_task(self.run(), name="下载协程")
+
     async def worker(self, session: AsyncSession):
         while True:
             task = await self._file_download_tasks.get()
@@ -108,7 +111,7 @@ class HttpDownloadManager:
         print(f"正在下载: {url} | {path}")
         await path.parent.mkdir(parents=True, exist_ok=True)
         resp = await session.get(url, stream=True)
-        await session.gather()
+        await session.gather(resp)
         resp.raise_for_status()
         total_size = int(resp.headers.get("content-length") or 0)
         print(f"下载大小 {total_size / 1024 / 1024:.2f} MB")
