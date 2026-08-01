@@ -12,11 +12,14 @@ dependencies = [
     "mypy-protobuf>=5.1.0",
     "niquests[socks,speedups]>=3.20.1",
     "protobuf>=7.35.1",
+    "protobuf-py>=0.2.0",
     "pywebview>=6.2.1",
     "websockets>=16.0",
 ]
 
 [dependency-groups]
 dev = [
+    "buf-bin>=1.72.0",
+    "protoc-gen-py>=0.2.0",
     "ruff>=0.15.21",
 ]

@@ -6,7 +6,7 @@ package GameInstall;
 
 // Chunk 模式游戏文件清单
 message SophonChunkManifest {
-    repeated SophonChunkFile chuncks = 1;
+    repeated SophonChunkFile chunks = 1;
 }
 
 // Chunk 模式游戏文件

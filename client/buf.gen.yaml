@@ -1,0 +1,7 @@
+version: v2
+inputs:
+  - directory: core/proto
+plugins:
+  - local: protoc-gen-py
+    out: core/proto
+    opt: init_files=false

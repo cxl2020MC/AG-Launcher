@@ -87,7 +87,9 @@ class HttpDownloadManager:
                     self.worker(session), name=f"download-worker-{i}"
                 )
                 self._worker_list.append(task)
-            await self.wait_download_ok()
+            # await self.wait_download_ok()
+            await asyncio.gather(*self._worker_list, return_exceptions=True)
+
 
     async def run_background(self):
         asyncio.create_task(self.run(), name="下载协程")
@@ -138,14 +140,23 @@ class HttpDownloadManager:
         for _ in range(self.workers_num + 1):
             await self._file_download_tasks.put(None)
         await self.wait_download_ok()
-
-    async def wait_download_ok(self):
-        # 等待下载worker完成
-        await self._file_download_tasks.join()
         for task in self._worker_list:
             task.cancel()
         # 等待直到所有工作任务都被取消。
         await asyncio.gather(*self._worker_list, return_exceptions=True)
+        print("所有任务下载完成！")
+
+    async def wait_download_ok(self):
+        print("等待下载完成...")
+        # 等待下载worker完成
+        await self._file_download_tasks.join()
+        print("所有任务下载完成！")
+
+        # for task in self._worker_list:
+        #     task.cancel()
+        # # 等待直到所有工作任务都被取消。
+        # await asyncio.gather(*self._worker_list, return_exceptions=True)
+        # print("所有任务下载完成！")
 
     def get_all_download_progress(self):
         return self._file_download_status.copy()
