@@ -12,7 +12,6 @@ cache_dir = anyio.Path("cache")
 game_install_dir = anyio.Path("games")
 
 
-
 @dataclass
 class MatchManfiest:
     category_id: str
@@ -58,8 +57,7 @@ class GameDownload:
                     cache_dir / manifest.manifest.id,
                 )
             )
-        await self.download_manager.run_background()
-        await self.download_manager.wait_download_ok()
+        await self.download_manager.run()
 
         ChunkManifest_proto = protobuf.SophonChunkManifest()
         for match_manifest in match_manifest_list:
@@ -76,20 +74,27 @@ class GameDownload:
             chunks_dir = game_install_dir / "chunks"
 
             for file in chunk_manifest_data.chunks:
+                file_path = game_install_dir / file.file
+                if await file_path.exists():
+                    print(f"文件已存在: {file.file}, 检查md5")
+                    md5 = await download.get_file_md5(file_path)
+                    print(md5)
+                    if md5 == file.md5:
+                        print(f"文件md5匹配: {file.file}， 跳过下载")
+                        continue
                 print(f"正在下载文件: {file.file}")
                 for chunk in file.chunks:
                     await self.download_manager.add(
-                        download.DownloadFile(
+                        download.DownloadTask(
                             f"{match_manifest.chunk_download.url_prefix}/{chunk.id}",
                             chunks_dir / chunk.id,
+                            chunk.compressed_md5
                         )
                     )
-                await self.download_manager.wait_download_ok()
-
+                await self.download_manager.run()
 
                 file.chunks.sort(key=lambda x: x.offset)
                 print(file.chunks)
-                file_path = game_install_dir / file.file
                 print(f"正在合并文件: {file.file}")
                 await file_path.parent.mkdir(parents=True, exist_ok=True)
                 async with await anyio.open_file(file_path, "wb") as f:
