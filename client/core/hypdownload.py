@@ -21,7 +21,6 @@ class MatchManfiest:
 class GameDownload:
     def __init__(self, launcher: hypcore.HYPLauncher) -> None:
         self.launcher = launcher
-        self.download_manager = download.HttpDownloadManager()
 
     async def get_game_branches(self, game_ids: list[str] | None = None):
         game_branches = await self.launcher.get_game_branches(game_ids)
@@ -50,14 +49,15 @@ class GameDownload:
                 )
                 match_manifest_list.append(manifest)
 
+        download_manager = download.HttpDownloadManager()
         for manifest in match_manifest_list:
-            await self.download_manager.add(
+            await download_manager.add(
                 download.DownloadTask(
                     f"{manifest.manifest_download.url_prefix}/{manifest.manifest.id}",
                     cache_dir / manifest.manifest.id,
                 )
             )
-        await self.download_manager.run()
+        await download_manager.run()
 
         ChunkManifest_proto = protobuf.SophonChunkManifest()
         for match_manifest in match_manifest_list:
@@ -76,22 +76,26 @@ class GameDownload:
             for file in chunk_manifest_data.chunks:
                 file_path = game_install_dir / file.file
                 if await file_path.exists():
-                    print(f"文件已存在: {file.file}, 检查md5")
-                    md5 = await download.get_file_md5(file_path)
-                    print(md5)
-                    if md5 == file.md5:
-                        print(f"文件md5匹配: {file.file}， 跳过下载")
+                    print(f"文件已存在: {file.file}, 检查长度")
+                    if await download.get_file_size(file_path) == file.size:
+                        print(f"文件长度匹配: {file.file}, 跳过下载")
                         continue
+                    # md5 = await download.get_file_md5(file_path)
+                    # print(md5)
+                    # if md5 == file.md5:
+                    #     print(f"文件md5匹配: {file.file},  跳过下载")
+                    #     continue
                 print(f"正在下载文件: {file.file}")
+                download_manager = download.HttpDownloadManager()
                 for chunk in file.chunks:
-                    await self.download_manager.add(
+                    await download_manager.add(
                         download.DownloadTask(
                             f"{match_manifest.chunk_download.url_prefix}/{chunk.id}",
                             chunks_dir / chunk.id,
-                            chunk.compressed_md5
+                            chunk.compressed_md5,
                         )
                     )
-                await self.download_manager.run()
+                await download_manager.run()
 
                 file.chunks.sort(key=lambda x: x.offset)
                 print(file.chunks)
@@ -99,11 +103,19 @@ class GameDownload:
                 await file_path.parent.mkdir(parents=True, exist_ok=True)
                 async with await anyio.open_file(file_path, "wb") as f:
                     for chunk in file.chunks:
+                        chunk_file_path = chunks_dir / chunk.id
                         chunk_file = compression.zstd.decompress(
-                            await (chunks_dir / chunk.id).read_bytes()
+                            await chunk_file_path.read_bytes()
                         )
                         await f.seek(chunk.offset)
                         await f.write(chunk_file)
+                for chunk in file.chunks:
+                    print(f"正在删除临时文件: {chunks_dir / chunk.id}")
+                    await (chunks_dir / chunk.id).unlink(missing_ok=True)
+                    if await (chunks_dir / chunk.id).exists():
+                        print(f"删除失败: {chunk.id}")
+
+                
 
 
 if __name__ == "__main__":

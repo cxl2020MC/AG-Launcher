@@ -200,7 +200,7 @@ class HttpDownloadManager:
                 md5 = await get_file_md5(path)
                 print(md5)
                 if md5 == task.md5:
-                    print(f"文件md5匹配: {path}， 跳过下载")
+                    print(f"文件md5匹配: {path}, 跳过下载")
                     return
             await path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -208,7 +208,7 @@ class HttpDownloadManager:
             await session.gather(resp)
             resp.raise_for_status()
             total_size = int(resp.headers.get("content-length") or 0)
-            print(f"下载大小 {total_size / 1024 / 1024:.2f} MB")
+            print(f"下载大小 {transform_file_size(total_size)}")
             task.total_size = total_size
             task.status = DownloadStatus.DOWNLOADING
             async with await anyio.open_file(path, mode="wb") as f:
@@ -246,6 +246,17 @@ async def get_file_md5(path: anyio.Path, chunk_size: int = 1024*1024*10) -> str:
                 break
             await asyncio.to_thread(md5_hash.update, chunk)
     return md5_hash.hexdigest()
+
+async def get_file_size(path: anyio.Path) -> int:
+    size = await path.stat()
+    return size.st_size
+
+def transform_file_size(size: float) -> str:
+    for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]:
+        if size < 1024:
+            return f"{size:.2f} {unit}"
+        size /= 1024
+    return f"{size:.2f} YB"
 
 
 if __name__ == "__main__":
