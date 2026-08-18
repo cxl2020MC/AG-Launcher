@@ -1,17 +1,13 @@
-from niquests import AsyncSession
-
-
 import asyncio
 import hashlib
+import time
+from dataclasses import dataclass
+from enum import StrEnum
 
 # import aiohttp
 import anyio
-
-import time
-
 import yarl
-from dataclasses import dataclass
-from enum import StrEnum
+from niquests import AsyncSession
 
 type URL = str | yarl.URL
 
@@ -145,11 +141,11 @@ async def get_file_size(path: anyio.Path) -> int:
 
 
 def transform_file_size(size: float) -> str:
-    for unit in ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]:
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
         if size < 1024:
             return f"{size:.2f} {unit}"
         size /= 1024
-    return f"{size:.2f} YB"
+    return f"{size:.2f} PB"
 
 
 if __name__ == "__main__":

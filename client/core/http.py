@@ -1,7 +1,7 @@
-from niquests import AsyncSession
+# from niquests import AsyncSession
+import niquests
 
-
-session = AsyncSession(happy_eyeballs=True)
+session = niquests.AsyncSession(happy_eyeballs=True)
 
 
 async def close():
