@@ -1,10 +1,12 @@
 import asyncio
-import aiohttp
+# import aiohttp
 from yarl import URL
+
 # from typing import TypedDict
 from enum import StrEnum
 
 from .log import logger as log
+from . import http
 # from  import models
 
 
@@ -24,6 +26,7 @@ class LauncherType(StrEnum):
 HYP_API_DATA = {
     LaucherArea.CN: {
         "api_base": "hyp-api.mihoyo.com",
+        "chunk_api_base": "downloader-api.mihoyo.com",
         "launcher_ids": {
             LauncherType.CN: "jGHBHlcOq1",
             LauncherType.BILIBILIYS: "umfgRO5gh5",
@@ -33,6 +36,7 @@ HYP_API_DATA = {
     },
     LaucherArea.GLOBAL: {
         "api_base": "hyp-api.mihoyo.com",
+        "chunk_api_base": "sg-downloader-api.hoyoverse.com",
         "launcher_ids": {
             LauncherType.GLOBAL: "VYTpXlbWo8",
         },
@@ -42,52 +46,30 @@ HYP_API_DATA = {
 
 # https://github.com/Scighost/Starward/blob/main/src/Starward.Core/HoYoPlay/HoYoPlayClient.cs
 class HYPLauncher:
-    def __init__(self, area: LaucherArea, launcher: LauncherType, language: str = "zh-cn"):
+    def __init__(
+        self, area: LaucherArea, launcher: LauncherType, language: str = "zh-cn"
+    ):
         self.area = area
         self.launcher = launcher
         self.language = language
         self.api_base = self._get_hyp_api_base(area)
-        self.launcher_id = self._get_launcher_id(launcher)
+        self.launcher_id = self._get_launcher_id(area, launcher)
         self.hyp_api_url = self.get_hyp_api_url()
-        self.hyp_game_chunk_api_base = self._get_game_chunk_api_base(area)
-        self.hyp_game_chunk_api_url = self.get_hyp_game_chunk_api_url()
+        # self.hyp_game_chunk_api_base = self._get_game_chunk_api_host(area)
+        self.hyp_game_chunk_api_url = self.get_hyp_game_chunk_api_url(area)
         self.games_data = {}
 
     @staticmethod
-    def _get_launcher_id(laucher: LauncherType) -> str:
-        match laucher:
-            case LauncherType.CN:
-                return "jGHBHlcOq1"
-            case LauncherType.GLOBAL:
-                return "VYTpXlbWo8"
-            case LauncherType.BILIBILIYS:
-                return "umfgRO5gh5"
-            case LauncherType.BILIBILISR:
-                return "6P5gHMNyK3"
-            case LauncherType.BILIBILIZZZ:
-                return "xV0f4r1GT0"
-            case _:
-                raise Exception("不支持的启动器")
+    def _get_launcher_id(area: LaucherArea, launcher: LauncherType) -> str:
+        return HYP_API_DATA.get(area, {}).get("launcher_ids", {}).get(launcher, "")
 
     @staticmethod
     def _get_hyp_api_base(area: LaucherArea) -> str:
-        match area:
-            case LaucherArea.CN:
-                return "hyp-api.mihoyo.com"
-            case LaucherArea.GLOBAL:
-                return "sg-hyp-api.hoyoverse.com"
-            case _:
-                raise Exception("不支持的启动器")
+        return HYP_API_DATA.get(area, {}).get("api_base", "")
 
     @staticmethod
-    def _get_game_chunk_api_base(area: LaucherArea) -> str:
-        match area:
-            case LaucherArea.CN:
-                return "downloader-api.mihoyo.com"
-            case LaucherArea.GLOBAL:
-                return "sg-downloader-api.hoyoverse.com"
-            case _:
-                raise Exception("不支持的启动器")
+    def _get_game_chunk_api_host(area: LaucherArea) -> str:
+        return HYP_API_DATA.get(area, {}).get("chunk_api_base", "")
 
     def get_hyp_api_params(self) -> dict:
         return {
@@ -100,9 +82,9 @@ class HYPLauncher:
         api_url_str = f"https://{self.api_base}/hyp/hyp-connect/api"
         return URL(api_url_str)
 
-    def get_hyp_game_chunk_api_url(self) -> URL:
+    def get_hyp_game_chunk_api_url(self, area: LaucherArea) -> URL:
         api_url_str = (
-            f"https://{self.hyp_game_chunk_api_base}/downloader/sophon_chunk/api"
+            f"https://{self._get_game_chunk_api_host(area)}/downloader/sophon_chunk/api"
         )
         return URL(api_url_str)
 
@@ -112,15 +94,14 @@ class HYPLauncher:
         if params is not None:
             api_params.update(params)
         log.debug(f"请求 URL: {api_url}\n请求参数: {api_params}")
-        async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, params=api_params) as response:
-                log.debug(f"编码 URL: {response.url}")
-                response.raise_for_status()
-                res = await response.json()
-                log.debug(f"响应数据: {res}")
-                if res.get("retcode") != 0:
-                    raise Exception(f"API 请求错误: {res}")
-                return res.get("data")
+        response = await http.session.get(str(api_url), params=api_params)
+        log.debug(f"编码 URL: {response.url}")
+        response.raise_for_status()
+        res = response.json()
+        log.debug(f"响应数据: {res}")
+        if res.get("retcode") != 0:
+            raise Exception(f"API 请求错误: {res}")
+        return res.get("data")
 
     async def _get_games(self):
         data = await self.get_hyp_api("getGames")
@@ -130,7 +111,7 @@ class HYPLauncher:
         if not self.games_data:
             self.games_data = await self._get_games()
         return self.games_data
-    
+
     async def get_game(self, game_id: str | None = None, game_biz: str | None = None):
         data = await self.get_games()
         for game_data in data["games"]:
@@ -211,27 +192,25 @@ class HYPLauncher:
 
     async def get_hyp_chunk_api(self, path: str, params: dict | None = None):
         api_url = self.hyp_game_chunk_api_url / path
-        async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, params=params) as response:
-                log.debug(f"编码 URL: {response.url}")
-                response.raise_for_status()
-                res = await response.json()
-                log.debug(f"响应数据: {res}")
-                if res.get("retcode") != 0:
-                    raise Exception(f"API 请求错误: {res}")
-                return res.get("data")
+        response = await http.session.get(str(api_url), params=params)
+        log.debug(f"编码 URL: {response.url}")
+        response.raise_for_status()
+        res = response.json()
+        log.debug(f"响应数据: {res}")
+        if res.get("retcode") != 0:
+            raise Exception(f"API 请求错误: {res}")
+        return res.get("data")
 
     async def post_hyp_chunk_api(self, path: str, params: dict | None = None):
         api_url = self.hyp_game_chunk_api_url / path
-        async with aiohttp.ClientSession() as session:
-            async with session.post(api_url, params=params) as response:
-                log.debug(f"编码 URL: {response.url}")
-                response.raise_for_status()
-                res = await response.json()
-                log.debug(f"响应数据: {res}")
-                if res.get("retcode") != 0:
-                    raise Exception(f"API 请求错误: {res}")
-                return res.get("data")
+        response = await http.session.post(str(api_url), params=params)
+        log.debug(f"编码 URL: {response.url}")
+        response.raise_for_status()
+        res = response.json()
+        log.debug(f"响应数据: {res}")
+        if res.get("retcode") != 0:
+            raise Exception(f"API 请求错误: {res}")
+        return res.get("data")
 
     async def get_game_chunk_build(
         self, branch: str, package_id: str, password: str, tag: str | None = None

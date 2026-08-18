@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from . import hyp_api
 
-
 class ManifestInfo(BaseModel):
     id: str
     checksum: str

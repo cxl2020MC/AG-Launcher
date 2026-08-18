@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import anyio
 
-from . import hypcore, download, http
+from . import hypcore, download
 from .type import hyp_download_check, hyp_download_game_branches
 from .proto import Sophon_pb as protobuf
 
@@ -112,10 +112,6 @@ class GameDownload:
                 for chunk in file.chunks:
                     print(f"正在删除临时文件: {chunks_dir / chunk.id}")
                     await (chunks_dir / chunk.id).unlink(missing_ok=True)
-                    if await (chunks_dir / chunk.id).exists():
-                        print(f"删除失败: {chunk.id}")
-
-                
 
 
 if __name__ == "__main__":
@@ -124,18 +120,27 @@ if __name__ == "__main__":
     )
 
     async def main():
-        game_branches_data = await gd.get_game_branches(["x6znKlJ0xK"])
+        # game_branches_data = await gd.get_game_branches(["x6znKlJ0xK"])
+        game_branches_data = await gd.get_game_branches(["1Z8W5NHUQb"])
+        # chunk_build_data = await gd.get_sophon_chunk_build(
+        #     "main", "FfGDa3bsvp", "FJCF1CT6Z4nz"
+        # )
         chunk_build_data = await gd.get_sophon_chunk_build(
-            "main", "FfGDa3bsvp", "FJCF1CT6Z4nz"
+            "predownload", "8xfMve0uwQ", "EPq5oNru9q"
         )
         cgs: list[hyp_download_game_branches.Category] = []
-        for categorie in game_branches_data.game_branches[0].main.categories:
+        # for categorie in game_branches_data.game_branches[0].main.categories:
+        if game_branches_data.game_branches[0].pre_download is None:
+            print("pre_download is None")
+            return
+        for categorie in game_branches_data.game_branches[0].pre_download.categories:
             if (
                 hyp_download_game_branches.CategoryType.CATEGORY_TYPE_RESOURCE
                 is categorie.type
             ):
                 if (
-                    hyp_download_game_branches.ScenarioType.CATEGORY_SCENARIO_BASE
+                    # hyp_download_game_branches.ScenarioType.CATEGORY_SCENARIO_BASE
+                    hyp_download_game_branches.ScenarioType.CATEGORY_SCENARIO_FULL
                     in categorie.scenarios
                 ):
                     cgs.append(categorie)

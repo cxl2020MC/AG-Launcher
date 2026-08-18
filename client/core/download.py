@@ -9,11 +9,11 @@ import anyio
 
 import time
 
-# import yarl
+import yarl
 from dataclasses import dataclass
 from enum import StrEnum
 
-type URL = str
+type URL = str | yarl.URL
 
 
 # @dataclass
@@ -97,7 +97,7 @@ class HttpDownloadManager:
                     return
             await path.parent.mkdir(parents=True, exist_ok=True)
 
-            resp = await session.get(url, stream=True)
+            resp = await session.get(str(url), stream=True)
             await session.gather(resp)
             resp.raise_for_status()
             total_size = int(resp.headers.get("content-length") or 0)

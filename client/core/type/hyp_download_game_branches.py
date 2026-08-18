@@ -39,7 +39,7 @@ class Main(BaseModel):
 class GameBranch(BaseModel):
     game: Game
     main: Main
-    pre_download: Any | None = None  # JSON 中为 null，可能为其他类型
+    pre_download: Main | None = None  # JSON 中为 null，可能为其他类型
     enable_base_pkg_predownload: bool
 
 
