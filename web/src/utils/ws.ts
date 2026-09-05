@@ -1,4 +1,4 @@
-import { useGameStore } from '@/stores/game';
+import { useGameBackgroundStore } from '@/stores/game';
 
 
 const params = new URLSearchParams(window.location.search);
@@ -35,7 +35,7 @@ function createWebSocket(ws_url: string): WebSocket {
             if (jsonData.action == "update_bg") {
                 console.log("收到背景更新消息:", jsonData);
                 // 在这里处理背景更新逻辑
-                const store = useGameStore();
+                const store = useGameBackgroundStore();
                 store.$state = jsonData.data;
             }
         }

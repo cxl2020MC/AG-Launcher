@@ -126,14 +126,14 @@ if __name__ == "__main__":
         #     "main", "FfGDa3bsvp", "FJCF1CT6Z4nz"
         # )
         chunk_build_data = await gd.get_sophon_chunk_build(
-            "predownload", "8xfMve0uwQ", "EPq5oNru9q"
+            "main", "8xfMve0uwQ", "CW8GbLNU8f"
         )
         cgs: list[hyp_download_game_branches.Category] = []
-        # for categorie in game_branches_data.game_branches[0].main.categories:
-        if game_branches_data.game_branches[0].pre_download is None:
-            print("pre_download is None")
-            return
-        for categorie in game_branches_data.game_branches[0].pre_download.categories:
+        for categorie in game_branches_data.game_branches[0].main.categories:
+        # if game_branches_data.game_branches[0].pre_download is None:
+        #     print("pre_download is None")
+        #     return
+        # for categorie in game_branches_data.game_branches[0].pre_download.categories:
             if (
                 hyp_download_game_branches.CategoryType.CATEGORY_TYPE_RESOURCE
                 is categorie.type

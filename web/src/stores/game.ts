@@ -83,6 +83,6 @@ const bg_data_raw: Backgrounds = [
     }
 ]
 
-export const useGameStore = defineStore('game-bg', {
+export const useGameBackgroundStore = defineStore('game-bg', {
     state: (): typeof bg_data_raw => (bg_data_raw),
 })

@@ -1,7 +1,7 @@
 <script setup lang="ts" vapor>
 import { ref, computed } from 'vue';
 import SlideShow from '@/components/SlideShow.vue';
-import { useGameStore } from '@/stores/game'
+import { useGameBackgroundStore } from '@/stores/game'
 import { getApi } from '@/utils/request'
 
 
@@ -14,7 +14,7 @@ getApi('game_info', { area: 'cn', launcher: '国服', game_biz: 'hk4e_cn' }).the
 const game_icon = computed(() => game_data.value?.display?.icon?.url)
 console.log(game_data.value)
 
-const bg_datas = useGameStore()
+const bg_datas = useGameBackgroundStore()
 
 
 const bg_num = ref(0)

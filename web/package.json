@@ -14,24 +14,24 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-vue": "^8.6.0",
     "pinia": "^3.0.4",
-    "vue": "beta",
-    "vue-router": "^5.2.0"
+    "vue": "rc",
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
-    "@iconify/json": "^2.2.510",
-    "@tsconfig/node-lts": "^24.0.0",
-    "@types/node": "^26.1.2",
+    "@iconify/json": "^2.2.525",
+    "@tsconfig/node-lts": "^24.0.1",
+    "@types/node": "^26.4.1",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
     "npm-run-all2": "^9.0.3",
     "typescript": "^6.0.3",
     "unplugin-icons": "^23.0.1",
-    "vite": "^8.2.0",
+    "vite": "^8.2.2",
     "vite-plugin-vue-devtools": "^8.2.1",
-    "vue-tsc": "^3.3.9"
+    "vue-tsc": "^3.3.11"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
-  "packageManager": "pnpm@11.20.0+sha512.9a6f330a95b66446ea088faf1521405a8a01f07fde7124cc9958dfed52d4bb436737e65b08f85f37b46fcba375092558ac51262b816844b22f63406ed166bfee"
+  "packageManager": "pnpm@12.3.4+sha512.961aa41fb077da3a04a441d9f8e15ebc0c96da8ef710b2eb67bf9ee7cb0610eabd48f1fd85f51cffe73846785fa0f87c56a3a872a1d893f8446741b5cce45457"
 }

@@ -1,3 +1,4 @@
+# uv run buf generate
 version: v2
 inputs:
   - directory: core/proto
